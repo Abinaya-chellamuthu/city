@@ -19,7 +19,7 @@ const StatusBadge = ({ status, priority }) => {
         {status}
       </span>
       {priority === 'High' && (
-        <span style={{ color: '#dc2626', background: '#fee2e2', padding: '2px 8px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: '800' }}>CRITICAL</span>
+        <span style={{ color: '#dc2626', background: '#fee2e2', padding: '2px 8px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: '800' }}>ESCALATED</span>
       )}
     </div>
   );
@@ -114,7 +114,14 @@ const Complaints = () => {
                   <div style={{ fontWeight: '600' }}>{c.category}</div>
                   <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{c.location}</div>
                 </td>
-                <td style={{ padding: '16px' }}><StatusBadge status={c.status} priority={c.priority} /></td>
+                <td style={{ padding: '16px' }}>
+                  <StatusBadge status={c.status} priority={c.priority} />
+                  {c.priority === 'High' && (
+                    <div style={{ fontSize: '0.6rem', color: '#dc2626', fontWeight: '800', marginTop: '4px', textTransform: 'uppercase' }}>
+                       Escalated to Authority
+                    </div>
+                  )}
+                </td>
                 <td style={{ padding: '16px', textAlign: 'right' }}>
                   {role === 'citizen' ? (
                     <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', alignItems: 'center' }}>

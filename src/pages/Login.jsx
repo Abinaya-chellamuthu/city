@@ -102,6 +102,17 @@ const Login = () => {
           <button className="btn btn-primary" onClick={handleLogin} style={{ width: '100%', height: '48px', justifyContent: 'center' }}>
             {step === 1 ? 'Login with OTP' : 'Verify & Enter'} <ArrowRight size={18} />
           </button>
+
+          {step === 1 && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '-8px' }}>
+               <button className="btn glass-button" style={{ fontSize: '0.7rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  <ShieldCheck size={14} /> FaceID
+               </button>
+               <button className="btn glass-button" style={{ fontSize: '0.7rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  <ShieldCheck size={14} /> Biometric
+               </button>
+            </div>
+          )}
           
           <div style={{ textAlign: 'center', fontSize: '0.8rem', color: '#64748b' }}>
             <ShieldCheck size={14} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
