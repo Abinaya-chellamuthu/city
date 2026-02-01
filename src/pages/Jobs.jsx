@@ -49,7 +49,9 @@ const Jobs = () => {
             {applied.includes(j.title) ? (
               <span style={{ color: '#10b981', fontWeight: '700' }}>✓ APPLIED</span>
             ) : (
-              <button className="btn btn-primary" onClick={() => handleApply(j.title)}>View & Apply</button>
+              <button className="btn btn-primary" onClick={() => handleApply(j.title)}>
+                {j.tag === 'Social' ? 'Join Now' : 'View & Apply'}
+              </button>
             )}
           </div>
         ))}

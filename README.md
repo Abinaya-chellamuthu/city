@@ -1,16 +1,55 @@
-# React + Vite
+# CityConnect – Smart Citizen Super App 🏛️
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+CityConnect is a unified digital platform acting as a one-stop hub for citizens to interact with city services. It digitizes complaints, payments, emergency access, and community engagement into a single, professional-grade interface.
 
-Currently, two official plugins are available:
+## 🚀 Key Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 🔴 Layer 1: Must-Demo (Fully Functional)
+- **Civic Complaint Management**: Full Citizen-to-Authority reporting workflow with real-time status tracking.
+- **Emergency Services Hub**: Hold-to-Activate SOS mechanism with simulated GPS tracking.
+- **Official Announcements**: Authority-verified events and news feed.
 
-## React Compiler
+### 🟡 Layer 2: Simulated & Interactive
+- **Secure Utility Payments**: Integrated billing dashboard for Electricity, Water, and Taxes (simulated with receipts).
+- **AI-Powered Civic Chatbot**: Smart FAQ assistant for instant civic guidance.
+- **Local Opportunities Board**: Connection to municipal contracts and social volunteering roles.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 🔵 Layer 3: Advanced Smart-City Tech
+- **Admin Analytics Dashboard**: Live resource allocation charts and issue hotspots map for authorities.
+- **Accessibility & Inclusion**: Built-in High-Contrast mode and Multilingual (English/Hindi) support.
+- **Citizen Personalization**: Unified 'Connect Hub' for tracking personal tickets and bill reminders.
 
-## Expanding the ESLint configuration
+## 🛠️ Tech Stack
+- **Frontend**: React.js + Vite
+- **State Management**: React Context API (Shared State between Citizen/Admin roles)
+- **Styling**: Premium Custom CSS (Variable-based tokens, Glassmorphism, Accessibility system)
+- **Icons**: Lucide-React
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 📦 Getting Started
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Abinaya-chellamuthu/city.git
+   cd city
+   ```
+
+2. **Install Dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Run Development Server**
+   ```bash
+   npm run dev
+   ```
+
+4. **Build for Production**
+   ```bash
+   npm run build
+   ```
+
+## 🏆 Hackathon Advantage
+CityConnect is designed with **"In Plain Sight" Demoability**. Use the **Role Switcher** in the top header to instantly swap between **Citizen** and **Admin** views, allowing judges to see the full data-flow loop in real-time.
+
+---
+*Created for Smart City Civic Engagement Hackathons.*
