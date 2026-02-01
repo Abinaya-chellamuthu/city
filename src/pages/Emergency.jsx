@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Phone, Ambulance, Shield, Flame, AlertTriangle, MapPin, Send } from 'lucide-react';
+import { Phone, Ambulance, Shield, Flame, AlertTriangle, MapPin, Send, Activity } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
+import { useAppContext } from '../context/AppContext';
 
 const Emergency = () => {
   const { role, disasterAlerts } = useAppContext();

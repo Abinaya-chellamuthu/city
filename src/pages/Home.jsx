@@ -1,4 +1,5 @@
-import { FileText, CreditCard, Activity, Map, PieChart, Users, TrendingUp, ShieldCheck, AlertTriangle, Star, Shield } from 'lucide-react';
+import { useAppContext } from '../context/AppContext';
+import { FileText, CreditCard, Activity, Map, PieChart, Users, TrendingUp, ShieldCheck, AlertTriangle, Star, Shield, Zap } from 'lucide-react';
 import CitizenID from '../components/CitizenID';
 
 const StatCard = ({ title, val, icon: Icon, color }) => (
