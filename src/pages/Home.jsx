@@ -1,6 +1,5 @@
-import React from 'react';
-import { useAppContext } from '../context/AppContext';
-import { FileText, CreditCard, Activity, Map, PieChart, Users, TrendingUp, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { FileText, CreditCard, Activity, Map, PieChart, Users, TrendingUp, ShieldCheck, AlertTriangle, Star, Shield } from 'lucide-react';
+import CitizenID from '../components/CitizenID';
 
 const StatCard = ({ title, val, icon: Icon, color }) => (
   <div className="card" style={{ padding: '20px', borderLeft: `4px solid ${color}` }}>
@@ -26,6 +25,36 @@ const Home = () => {
         <h1 style={{ marginBottom: '8px' }}>City Intelligence Command 🏙️</h1>
         <p style={{ marginBottom: '32px' }}>Strategic city-level overview for Super Administrator.</p>
         
+        {/* FEATURE 16: City Performance Index */}
+        <div className="card" style={{ background: 'var(--primary)', color: 'white', marginBottom: '32px', display: 'flex', gap: '32px', alignItems: 'center' }}>
+           <div style={{ flex: 1 }}>
+              <h2 style={{ fontSize: '1rem', opacity: 0.9, marginBottom: '8px' }}>CITY REPUTATION INDEX</h2>
+              <div style={{ fontSize: '3rem', fontWeight: '900' }}>8.4<span style={{ fontSize: '1rem', opacity: 0.7 }}>/10</span></div>
+              <p style={{ marginTop: '12px', fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)' }}>
+                Overall performance across Safety, Sanitation, and Digital Governance.
+              </p>
+           </div>
+           <div style={{ width: '1px', height: '100px', background: 'rgba(255,255,255,0.2)' }} />
+           <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div>
+                 <div style={{ fontSize: '0.7rem', opacity: 0.7 }}>SERVICE SPEED</div>
+                 <div style={{ fontWeight: 'bold' }}>92% Excellent</div>
+              </div>
+              <div>
+                 <div style={{ fontSize: '0.7rem', opacity: 0.7 }}>CITIZEN TRUST</div>
+                 <div style={{ fontWeight: 'bold' }}>88% Stable</div>
+              </div>
+              <div>
+                 <div style={{ fontSize: '0.7rem', opacity: 0.7 }}>INNOVATION</div>
+                 <div style={{ fontWeight: 'bold' }}>Top 5 Cities</div>
+              </div>
+              <div>
+                 <div style={{ fontSize: '0.7rem', opacity: 0.7 }}>SUSTAINABILITY</div>
+                 <div style={{ fontWeight: 'bold' }}>Level A+</div>
+              </div>
+           </div>
+        </div>
+
         <div className="grid-auto-fit" style={{ marginBottom: '32px' }}>
           <StatCard title="City Stability Index" val="94.2%" icon={ShieldCheck} color="#059669" />
           <StatCard title="Smart Infrastructure" val="Live" icon={Activity} color="#2563eb" />
@@ -143,19 +172,10 @@ const Home = () => {
       <h1 style={{ marginBottom: '24px' }}>My Connect Hub 🏠</h1>
       
       <div className="grid-auto-fit" style={{ marginBottom: '32px' }}>
-        <div className="card" style={{ background: 'var(--primary)', color: 'white' }}>
-          <h3>Citizen Profile</h3>
-          <p style={{ opacity: 0.9, marginTop: '8px' }}>Name: John Doe</p>
-          <div style={{ marginTop: '20px', display: 'flex', gap: '12px' }}>
-             <div style={{ flex: 1, padding: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '8px' }}>
-                <div style={{ fontSize: '0.7rem' }}>COMPLAINTS</div>
-                <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{complaints.length}</div>
-             </div>
-             <div style={{ flex: 1, padding: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '8px' }}>
-                <div style={{ fontSize: '0.7rem' }}>BILLS DUE</div>
-                <div style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>3</div>
-             </div>
-          </div>
+        <CitizenID />
+        
+        <div className="card" style={{ background: 'var(--primary)', color: 'white', display: 'none' }}>
+           {/* Legacy Profile Card Hidden */}
         </div>
         
         <div className="card">
