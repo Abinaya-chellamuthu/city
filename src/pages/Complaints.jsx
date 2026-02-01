@@ -1,36 +1,7 @@
 import React, { useState } from 'react';
-import { Plus, MapPin, Image as ImageIcon, Filter, ChevronDown, Calendar, Hash } from 'lucide-react';
+import { Plus, MapPin, Image as ImageIcon, Filter, ChevronDown, Calendar, Hash, Star, Edit3 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
-
-const initialComplaints = [
-  {
-    displayId: 'TKT-2026-001',
-    category: 'Pothole',
-    location: 'Main Street, near Central Park',
-    description: 'Large pothole causing traffic slowdown.',
-    status: 'Pending',
-    date: '2026-02-01',
-    lastUpdate: '2 hours ago'
-  },
-  {
-    displayId: 'TKT-2026-002',
-    category: 'Streetlight',
-    location: '5th Avenue & 2nd Cross',
-    description: 'Streetlight flickering and going off at night.',
-    status: 'In Progress',
-    date: '2026-01-30',
-    lastUpdate: '1 day ago'
-  },
-  {
-    displayId: 'TKT-2026-003',
-    category: 'Garbage',
-    location: 'Market Road',
-    description: 'Garbage not collected for 3 days.',
-    status: 'Resolved',
-    date: '2026-01-28',
-    lastUpdate: '3 days ago'
-  }
-];
+import { useAppContext } from '../context/AppContext';
 
 const StatusBadge = ({ status }) => {
   const getStyle = (s) => {
@@ -42,170 +13,140 @@ const StatusBadge = ({ status }) => {
     }
   };
   const ui = getStyle(status);
-  
   return (
-    <span style={{ 
-      display: 'inline-flex', 
-      alignItems: 'center', 
-      padding: '4px 12px', 
-      borderRadius: '9999px', 
-      background: ui.bg, 
-      color: ui.color, 
-      border: `1px solid ${ui.border}`,
-      fontSize: '0.75rem', 
-      fontWeight: '600',
-      textTransform: 'uppercase',
-      letterSpacing: '0.5px'
-    }}>
+    <span style={{ padding: '4px 12px', borderRadius: '9999px', background: ui.bg, color: ui.color, border: `1px solid ${ui.border}`, fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase' }}>
       {status}
     </span>
   );
 };
 
 const Complaints = () => {
-  const [complaints, setComplaints] = useState(initialComplaints);
+  const { role, complaints, addComplaint, updateComplaintStatus, rateComplaint } = useAppContext();
   const [showForm, setShowForm] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ category: '', location: '', description: '' });
+  const [ratingTarget, setRatingTarget] = useState(null);
   const toast = useToast();
 
-  const handleSubmit = (e) => {
+  const handleCitizenSubmit = (e) => {
     e.preventDefault();
-    setLoading(true);
+    addComplaint(formData);
+    setFormData({ category: '', location: '', description: '' });
+    setShowForm(false);
+    toast.show.success('Ticket submitted successfully! Authorities notified.');
+  };
 
-    // Simulate API call
-    setTimeout(() => {
-      const newTicket = {
-        displayId: `TKT-2026-00${complaints.length + 1}`,
-        ...formData,
-        status: 'Pending',
-        date: new Date().toISOString().split('T')[0],
-        lastUpdate: 'Just now'
-      };
-      setComplaints([newTicket, ...complaints]);
-      setFormData({ category: '', location: '', description: '' });
-      setShowForm(false);
-      setLoading(false);
-      toast.show.success('Complaint submitted successfully! Ticket ID generated.');
-    }, 1000);
+  const handleAdminStatusUpdate = (id, curStatus) => {
+    const nextStatus = curStatus === 'Pending' ? 'In Progress' : 'Resolved';
+    updateComplaintStatus(id, nextStatus);
+    toast.show.info(`Ticket status updated to ${nextStatus}`);
   };
 
   return (
     <div>
       <div className="flex-between" style={{ marginBottom: '24px' }}>
         <div>
-          <h1 style={{ marginBottom: '8px' }}>Civic Complaints</h1>
-          <p>Manage and track your reported issues.</p>
+          <h1 style={{ marginBottom: '8px' }}>Civic Tickets</h1>
+          <p>{role === 'admin' ? 'Monitoring city-wide issues.' : 'Report and track your civic concerns.'}</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowForm(true)}>
-          <Plus size={18} style={{ marginRight: '8px' }} />
-          New Ticket
-        </button>
+        {role === 'citizen' && (
+          <button className="btn btn-primary" onClick={() => setShowForm(true)}>
+            <Plus size={18} /> New Ticket
+          </button>
+        )}
       </div>
 
       {showForm && (
-        <div className="card" style={{ padding: '32px', marginBottom: '32px', maxWidth: '800px' }}>
-          <h3 style={{ marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid var(--border-color)' }}>Submit New Complaint</h3>
-          <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '20px' }}>
+        <div className="card" style={{ marginBottom: '32px', maxWidth: '800px' }}>
+          <h3>Submit New Complaint</h3>
+          <form onSubmit={handleCitizenSubmit} style={{ display: 'grid', gap: '20px', marginTop: '16px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
               <div>
-                <label>Issue Category</label>
-                <select required 
-                  value={formData.category}
-                  onChange={(e) => setFormData({...formData, category: e.target.value})}
-                >
+                <label>Category</label>
+                <select required value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})}>
                   <option value="">Select Category</option>
-                  <option value="Pothole">Values / Road Issue</option>
+                  <option value="Pothole">Roads / Pothole</option>
                   <option value="Garbage">Garbage / Sanitation</option>
-                  <option value="Streetlight">Streetlight / Electricity</option>
-                  <option value="Water">Water Leakage / Supply</option>
-                  <option value="Other">Other</option>
+                  <option value="Streetlight">Electricity / Streetlight</option>
+                  <option value="Water">Water / Plumbing</option>
                 </select>
               </div>
-              <div style={{ position: 'relative' }}>
+              <div>
                 <label>Location</label>
-                <div style={{ position: 'relative' }}>
-                  <MapPin size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                  <input required type="text" placeholder="Enter location" style={{ paddingLeft: '36px' }} 
-                    value={formData.location}
-                    onChange={(e) => setFormData({...formData, location: e.target.value})}
-                  />
-                </div>
+                <input required type="text" placeholder="e.g. 5th Cross Road" value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} />
               </div>
             </div>
-            
             <div>
-              <label>Detailed Description</label>
-              <textarea required placeholder="Describe the issue in detail..." rows="4" 
-                value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
-              />
+              <label>Details</label>
+              <textarea required rows="3" placeholder="Describe the issue..." value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} />
             </div>
-
-            <div style={{ padding: '20px', border: '2px dashed var(--border-color)', borderRadius: '8px', textAlign: 'center', background: 'var(--bg-color)' }}>
-               <ImageIcon size={24} color="var(--text-muted)" style={{ marginBottom: '8px' }} />
-               <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Drag and drop evidence photos here</p>
-               <button type="button" className="btn glass-button" style={{ marginTop: '12px', fontSize: '0.8rem' }}>Browse Files</button>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '12px', paddingTop: '20px', borderTop: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button type="submit" className="btn btn-primary">Submit</button>
               <button type="button" className="btn glass-button" onClick={() => setShowForm(false)}>Cancel</button>
-              <button type="submit" className="btn btn-primary" disabled={loading}>
-                {loading ? 'Submitting...' : 'Submit Ticket'}
-              </button>
             </div>
           </form>
         </div>
       )}
 
-      {/* Professional Table Layout */}
-      <div className="card" style={{ overflow: 'hidden' }}>
-        <div style={{ padding: '16px', background: 'var(--bg-color)', borderBottom: '1px solid var(--border-color)', display: 'flex', gap: '12px' }}>
-          <button className="btn glass-button" style={{ padding: '6px 12px', fontSize: '0.85rem' }}>
-            <Filter size={14} style={{ marginRight: '6px' }} /> Filter
-          </button>
-          <button className="btn glass-button" style={{ padding: '6px 12px', fontSize: '0.85rem' }}>
-            Sort by Date <ChevronDown size={14} style={{ marginLeft: '4px' }} />
-          </button>
-        </div>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.925rem' }}>
-          <thead>
-            <tr style={{ background: '#f8fafc', borderBottom: '1px solid var(--border-color)' }}>
-              <th style={{ textAlign: 'left', padding: '16px', color: 'var(--text-secondary)', fontWeight: '600' }}>Ticket ID</th>
-              <th style={{ textAlign: 'left', padding: '16px', color: 'var(--text-secondary)', fontWeight: '600' }}>Detail</th>
-              <th style={{ textAlign: 'left', padding: '16px', color: 'var(--text-secondary)', fontWeight: '600' }}>Location</th>
-              <th style={{ textAlign: 'left', padding: '16px', color: 'var(--text-secondary)', fontWeight: '600' }}>Date</th>
-              <th style={{ textAlign: 'left', padding: '16px', color: 'var(--text-secondary)', fontWeight: '600' }}>Status</th>
-              <th style={{ textAlign: 'right', padding: '16px', color: 'var(--text-secondary)', fontWeight: '600' }}>Action</th>
+      {/* List */}
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead style={{ background: '#f8fafc', borderBottom: '1px solid var(--border-color)' }}>
+            <tr>
+              <th style={{ textAlign: 'left', padding: '16px' }}>Ticket ID</th>
+              <th style={{ textAlign: 'left', padding: '16px' }}>Detail</th>
+              <th style={{ textAlign: 'left', padding: '16px' }}>Status</th>
+              <th style={{ textAlign: 'right', padding: '16px' }}>Action</th>
             </tr>
           </thead>
           <tbody>
-             {complaints.map((item, idx) => (
-               <tr key={idx} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                 <td style={{ padding: '16px' }}>
-                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '500' }}>
-                     <Hash size={14} color="var(--text-muted)" /> {item.displayId}
-                   </div>
-                 </td>
-                 <td style={{ padding: '16px' }}>
-                    <div style={{ fontWeight: '600', color: 'var(--text-main)' }}>{item.category}</div>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', maxWidth: '250px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.description}</div>
-                 </td>
-                 <td style={{ padding: '16px', color: 'var(--text-secondary)' }}>{item.location}</td>
-                 <td style={{ padding: '16px', color: 'var(--text-secondary)' }}>
-                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                     <Calendar size={14} /> {item.date}
-                   </div>
-                 </td>
-                 <td style={{ padding: '16px' }}><StatusBadge status={item.status} /></td>
-                 <td style={{ padding: '16px', textAlign: 'right' }}>
-                   <button className="btn glass-button" style={{ padding: '4px 10px', fontSize: '0.8rem' }}>View</button>
-                 </td>
-               </tr>
-             ))}
+            {complaints.map(c => (
+              <tr key={c.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                <td style={{ padding: '16px' }}>
+                   <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{c.date}</div>
+                   <div style={{ fontWeight: '600' }}>#{c.ticketId}</div>
+                </td>
+                <td style={{ padding: '16px' }}>
+                  <div style={{ fontWeight: '600' }}>{c.category}</div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{c.location}</div>
+                </td>
+                <td style={{ padding: '16px' }}><StatusBadge status={c.status} /></td>
+                <td style={{ padding: '16px', textAlign: 'right' }}>
+                  {role === 'admin' && c.status !== 'Resolved' ? (
+                    <button className="btn btn-primary" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => handleAdminStatusUpdate(c.id, c.status)}>
+                      <Edit3 size={14} /> Update
+                    </button>
+                  ) : role === 'citizen' && c.status === 'Resolved' && !c.rating ? (
+                    <button className="btn glass-button" style={{ padding: '6px 12px', fontSize: '0.8rem', color: '#f59e0b' }} onClick={() => setRatingTarget(c.id)}>
+                      Rate Service
+                    </button>
+                  ) : c.rating > 0 ? (
+                    <div style={{ display: 'flex', gap: '2px', justifyContent: 'flex-end' }}>
+                      {[...Array(5)].map((_, i) => <Star key={i} size={14} color={i < c.rating ? "#f59e0b" : "#e2e8f0"} fill={i < c.rating ? "#f59e0b" : "none"} />)}
+                    </div>
+                  ) : (
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Tracking...</span>
+                  )}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
+
+      {ratingTarget && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div className="card" style={{ width: '320px', textAlign: 'center' }}>
+            <h3>Rate Resolution</h3>
+            <p style={{ margin: '12px 0' }}>How satisfied are you with the resolution of Ticket #{complaints.find(c=>c.id===ratingTarget)?.ticketId}?</p>
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '20px' }}>
+               {[1,2,3,4,5].map(s => (
+                 <Star key={s} size={28} style={{ cursor: 'pointer' }} onClick={() => { rateComplaint(ratingTarget, s); setRatingTarget(null); toast.show.success('Thank you for your feedback!'); }} color="#f59e0b" />
+               ))}
+            </div>
+            <button className="btn glass-button" onClick={() => setRatingTarget(null)}>Skip</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

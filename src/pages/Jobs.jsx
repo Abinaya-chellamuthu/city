@@ -1,76 +1,56 @@
 import React, { useState } from 'react';
-import { Briefcase, MapPin, DollarSign, Clock, CheckCircle } from 'lucide-react';
+import { Briefcase, MapPin, Search, Filter, Hammer, Users as Volunteers, Building } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 
-const initialJobs = [
-  { id: 1, title: 'Park Maintenance Staff', org: 'City Parks Dept', type: 'Full-time', pay: '$15/hr', location: 'Central District', applied: false },
-  { id: 2, title: 'Road Safety Volunteer', org: 'Traffic Police', type: 'Volunteer', pay: 'Unpaid', location: 'West Zone', applied: false },
-  { id: 3, title: 'Teaching Assistant', org: 'Govt School No. 4', type: 'Part-time', pay: '$18/hr', location: 'North Avenue', applied: false },
-  { id: 4, title: 'Sanitation Supervisor', org: 'City Sanitation', type: 'Contract', pay: '$20/hr', location: 'East Sector', applied: false },
-];
-
 const Jobs = () => {
-  const [jobs, setJobs] = useState(initialJobs);
+  const [cat, setCat] = useState('All');
+  const [applied, setApplied] = useState([]);
   const toast = useToast();
 
-  const handleApply = (id) => {
-    setJobs(jobs.map(job => 
-      job.id === id ? { ...job, applied: true } : job
-    ));
-    toast.show.success('Application submitted successfully!');
+  const allJobs = [
+    { id: 101, title: 'Road Maintenance Crew', org: 'Municipal Works', type: 'Contract', tag: 'Municipal', icon: Hammer },
+    { id: 102, title: 'Green Park Volunteer', org: 'City Parks', type: 'Volunteer', tag: 'Social', icon: Volunteers },
+    { id: 103, title: 'Traffic Assistant', org: 'Police Dept', type: 'Part-time', tag: 'Municipal', icon: Building },
+    { id: 104, title: 'Old Age Home Helper', org: 'Hope NGO', type: 'Volunteer', tag: 'Social', icon: Volunteers },
+  ];
+
+  const filtered = cat === 'All' ? allJobs : allJobs.filter(j => j.tag === cat);
+
+  const handleApply = (title) => {
+    setApplied([...applied, title]);
+    toast.show.success(`Application sent for ${title}. We will contact you soon.`);
   };
 
   return (
     <div>
-      <h1 style={{ marginBottom: '8px' }}>Local Opportunities</h1>
-      <p style={{ marginBottom: '32px', maxWidth: '600px' }}>
-        Find employment and volunteering opportunities within your community. Partnered with local government bodies and official NGOs.
-      </p>
+      <h1 style={{ marginBottom: '24px' }}>Local Opportunities 💼</h1>
+      
+      <div className="flex-between" style={{ marginBottom: '32px' }}>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          {['All', 'Municipal', 'Social'].map(f => (
+            <button key={f} className={`btn ${cat === f ? 'btn-primary' : 'glass-button'}`} style={{ padding: '6px 16px', fontSize: '0.85rem' }} onClick={() => setCat(f)}>{f}</button>
+          ))}
+        </div>
+        <div style={{ position: 'relative', width: '240px' }}>
+           <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+           <input placeholder="Search jobs..." style={{ paddingLeft: '36px' }} />
+        </div>
+      </div>
 
       <div style={{ display: 'grid', gap: '16px' }}>
-        {jobs.map(job => (
-          <div key={job.id} className="card" style={{ 
-            padding: '24px', 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '24px',
-            transition: 'transform 0.2s',
-          }}>
-            <div style={{ 
-              width: '56px', 
-              height: '56px', 
-              borderRadius: '8px', 
-              background: '#f1f5f9', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              color: 'var(--text-secondary)'
-            }}>
-              <Briefcase size={28} />
-            </div>
-            
+        {filtered.map(j => (
+          <div key={j.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <div style={{ background: '#f1f5f9', padding: '16px', borderRadius: '12px', color: 'var(--primary)' }}><j.icon size={32} /></div>
             <div style={{ flex: 1 }}>
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '4px' }}>{job.title}</h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>{job.org}</p>
-              
-              <div style={{ display: 'flex', gap: '20px', marginTop: '12px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><MapPin size={16} /> {job.location}</span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Clock size={16} /> {job.type}</span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600', color: 'var(--text-main)' }}><DollarSign size={16} /> {job.pay}</span>
-              </div>
+              <div style={{ fontSize: '0.75rem', fontWeight: '800', color: j.tag === 'Municipal' ? '#3b82f6' : '#10b981', textTransform: 'uppercase' }}>{j.tag}</div>
+              <h3 style={{ margin: '4px 0' }}>{j.title}</h3>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{j.org} • {j.type}</div>
             </div>
-
-            <div>
-              {job.applied ? (
-                <button className="btn" disabled style={{ background: '#ecfdf5', color: '#047857', cursor: 'default', padding: '8px 20px' }}>
-                  <CheckCircle size={18} style={{ marginRight: '8px' }} /> Applied
-                </button>
-              ) : (
-                <button className="btn btn-primary" onClick={() => handleApply(job.id)} style={{ padding: '10px 24px' }}>
-                  Apply Now
-                </button>
-              )}
-            </div>
+            {applied.includes(j.title) ? (
+              <span style={{ color: '#10b981', fontWeight: '700' }}>✓ APPLIED</span>
+            ) : (
+              <button className="btn btn-primary" onClick={() => handleApply(j.title)}>View & Apply</button>
+            )}
           </div>
         ))}
       </div>

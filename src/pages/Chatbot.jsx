@@ -1,160 +1,82 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, User, Bot, Sparkles, X } from 'lucide-react';
+import { Send, Bot, Sparkles, User, MessageSquare } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 
 const Chatbot = () => {
-  const [messages, setMessages] = useState([
-    { id: 1, sender: 'bot', text: 'Hello! I am your CityConnect Assistant. How can I help you today?' }
-  ]);
+  const [msg, setMsg] = useState([{ id: 1, s: 'bot', t: 'Welcome to City Assistant! How can I help you today? I can guide you through complaints, payments, or city events.' }]);
   const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef(null);
+  const [busy, setBusy] = useState(false);
+  const endRef = useRef(null);
+  const toast = useToast();
 
-  const quickReplies = ['Pay Electricity Bill', 'Report Pothole', 'Emergency Numbers', 'Upcoming Events'];
+  const scrollToBottom = () => endRef.current?.scrollIntoView({ behavior: 'smooth' });
+  useEffect(scrollToBottom, [msg, busy]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  useEffect(scrollToBottom, [messages, isTyping]);
-
-  const generateResponse = (text) => {
-    const lower = text.toLowerCase();
-    if (lower.includes('bill') || lower.includes('pay')) return "You can view and pay your electricity, water, and tax bills in the 'Payments' section.";
-    if (lower.includes('complain') || lower.includes('report') || lower.includes('pothole')) return "To report an issue like a pothole or garbage, go to 'Complaints'. You can upload photos there.";
-    if (lower.includes('emergency') || lower.includes('police')) return "For emergencies, please visit the 'Emergency' page immediately or dial 112.";
-    if (lower.includes('event')) return "Check out the 'Events' page for upcoming festivals and meetings.";
-    return "I can help with Complaints, Bills, Emergency services, and Events. What do you need?";
+  const getBotReply = (t) => {
+    const l = t.toLowerCase();
+    if (l.includes('bill') || l.includes('pay')) return "To pay your utilities, navigate to the 'Payments' tab. We currently accept simulated payments for Electricity and Water.";
+    if (l.includes('complain') || l.includes('issue')) return "You can file a new ticket in the 'Complaints' section. Make sure to upload a photo for faster resolution!";
+    if (l.includes('emergency') || l.includes('police')) return "Go to the 'Emergency' hub immediately. You will find SOS and direct dialing there.";
+    if (l.includes('event')) return "The 'Events' page lists all official city announcements and festivals.";
+    if (l.includes('job')) return "Check out the 'Local Jobs' board for municipal contracts and volunteer roles.";
+    return "I'm not sure about that. Try asking about 'Bills', 'Complaints', or 'Emergency services'.";
   };
 
   const handleSend = (text) => {
-    const msgText = text || input;
-    if (!msgText.trim()) return;
-
-    const userMsg = { id: Date.now(), sender: 'user', text: msgText };
-    setMessages(prev => [...prev, userMsg]);
+    const userText = text || input;
+    if (!userText.trim()) return;
+    setMsg(prev => [...prev, { id: Date.now(), s: 'user', t: userText }]);
     setInput('');
-    setIsTyping(true);
-
+    setBusy(true);
     setTimeout(() => {
-      const botResponse = { id: Date.now() + 1, sender: 'bot', text: generateResponse(msgText) };
-      setMessages(prev => [...prev, botResponse]);
-      setIsTyping(false);
-    }, 1200);
+      setMsg(prev => [...prev, { id: Date.now()+1, s: 'bot', t: getBotReply(userText) }]);
+      setBusy(false);
+    }, 1000);
   };
 
   return (
-    <div style={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column', maxWidth: '1000px', margin: '0 auto' }}>
-      <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        {/* Header */}
-        <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px', background: '#f8fafc' }}>
-          <div style={{ padding: '8px', background: 'var(--primary)', borderRadius: '50%', color: 'white' }}>
-            <Sparkles size={20} />
-          </div>
+    <div style={{ height: 'calc(100vh - 120px)', display: 'flex', flexDirection: 'column', maxWidth: '800px', margin: '0 auto' }}>
+      <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0 }}>
+        <div style={{ padding: '16px 24px', background: '#f8fafc', borderBottom: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ background: 'var(--primary)', color: 'white', padding: '8px', borderRadius: '50%' }}><Bot size={20} /></div>
           <div>
-            <h3 style={{ margin: 0, fontSize: '1rem' }}>City Assistant AI</h3>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: '#10b981' }}>
-              <span style={{ width: '8px', height: '8px', background: '#10b981', borderRadius: '50%' }}></span>
-              Online
-            </div>
+            <h3 style={{ margin: 0, fontSize: '1rem' }}>City Assistant Bot</h3>
+            <span style={{ fontSize: '0.75rem', color: '#10b981' }}>● Online & Ready</span>
           </div>
         </div>
 
-        {/* Messages */}
-        <div style={{ flex: 1, padding: '24px', overflowY: 'auto', background: '#ffffff', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {messages.map(msg => (
-            <div key={msg.id} style={{ 
-              display: 'flex', 
-              justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-              alignItems: 'flex-start',
-              gap: '12px'
-            }}>
-              {msg.sender === 'bot' && (
-                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid #dbeafe' }}>
-                  <Bot size={20} color="var(--primary)" />
-                </div>
-              )}
+        <div style={{ flex: 1, padding: '24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {msg.map(m => (
+            <div key={m.id} style={{ alignSelf: m.s === 'user' ? 'flex-end' : 'flex-start', display: 'flex', gap: '12px' }}>
+              {m.s === 'bot' && <div style={{ background: '#f1f5f9', padding: '8px', borderRadius: '50%', alignSelf: 'flex-start' }}><Bot size={16} /></div>}
               <div style={{ 
-                maxWidth: '70%', 
-                padding: '12px 18px', 
-                borderRadius: '16px',
-                borderTopLeftRadius: msg.sender === 'bot' ? '4px' : '16px',
-                borderTopRightRadius: msg.sender === 'user' ? '4px' : '16px',
-                background: msg.sender === 'user' ? 'var(--primary)' : '#f1f5f9',
-                color: msg.sender === 'user' ? 'white' : 'var(--text-main)',
-                fontSize: '0.95rem',
-                lineHeight: '1.5',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                padding: '12px 16px', 
+                borderRadius: '16px', 
+                background: m.s === 'user' ? 'var(--primary)' : '#f1f5f9', 
+                color: m.s === 'user' ? 'white' : 'inherit',
+                maxWidth: '80%',
+                fontSize: '0.95rem'
               }}>
-                {msg.text}
+                {m.t}
               </div>
             </div>
           ))}
-          {isTyping && (
-             <div style={{ display: 'flex', gap: '12px' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #dbeafe' }}>
-                <Bot size={20} color="var(--primary)" />
-              </div>
-              <div style={{ padding: '16px', background: '#f1f5f9', borderRadius: '16px', borderTopLeftRadius: '4px', display: 'flex', gap: '6px' }}>
-                <span className="dot" style={{ animationDelay: '0s' }}></span>
-                <span className="dot" style={{ animationDelay: '0.2s' }}></span>
-                <span className="dot" style={{ animationDelay: '0.4s' }}></span>
-              </div>
-             </div>
-          )}
-          <div ref={messagesEndRef} />
+          {busy && <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Assistant is typing...</div>}
+          <div ref={endRef} />
         </div>
 
-        {/* Input Area */}
         <div style={{ padding: '20px', borderTop: '1px solid var(--border-color)', background: '#f8fafc' }}>
-          
-          {/* Quick Replies */}
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', overflowX: 'auto', paddingBottom: '4px' }}>
-            {quickReplies.map(reply => (
-               <button key={reply} 
-                 onClick={() => handleSend(reply)}
-                 className="btn" 
-                 style={{ 
-                   background: 'white', 
-                   border: '1px solid var(--border-color)', 
-                   borderRadius: '20px', 
-                   fontSize: '0.8rem', 
-                   padding: '6px 16px',
-                   color: 'var(--primary)'
-                 }}
-               >
-                 {reply}
-               </button>
-            ))}
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+             {['How to complain?', 'Pay Water Bill', 'SOS Numbers'].map(chip => (
+               <button key={chip} className="btn glass-button" style={{ borderRadius: '20px', fontSize: '0.75rem', padding: '4px 12px' }} onClick={() => handleSend(chip)}>{chip}</button>
+             ))}
           </div>
-
           <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} style={{ display: 'flex', gap: '12px' }}>
-            <input 
-              type="text" 
-              placeholder="Type your message..." 
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              style={{ borderRadius: '24px', paddingLeft: '20px', boxShadow: 'none' }}
-            />
-            <button type="submit" className="btn btn-primary" style={{ borderRadius: '50%', width: '46px', height: '46px', padding: 0 }} disabled={!input && !isTyping}>
-              <Send size={20} />
-            </button>
+            <input placeholder="Ask me anything..." value={input} onChange={e => setInput(e.target.value)} style={{ borderRadius: '24px' }} />
+            <button className="btn btn-primary" type="submit" style={{ width: '48px', height: '48px', borderRadius: '50%', padding: 0 }}><Send size={20} /></button>
           </form>
         </div>
       </div>
-
-      <style>{`
-        .dot {
-          width: 8px;
-          height: 8px;
-          background: #94a3b8;
-          borderRadius: 50%;
-          animation: bounce 1.4s infinite ease-in-out both;
-        }
-        @keyframes bounce {
-          0%, 80%, 100% { transform: scale(0); }
-          40% { transform: scale(1); }
-        }
-      `}</style>
     </div>
   );
 };

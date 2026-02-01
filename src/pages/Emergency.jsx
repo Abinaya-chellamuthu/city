@@ -1,154 +1,89 @@
 import React, { useState, useEffect } from 'react';
-import { Phone, Ambulance, Shield, Flame, AlertTriangle } from 'lucide-react';
+import { Phone, Ambulance, Shield, Flame, AlertTriangle, MapPin, Send } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 
 const Emergency = () => {
-  const [sosStatus, setSosStatus] = useState('idle'); // idle, holding, active
-  const [holdProgress, setHoldProgress] = useState(0);
+  const [sosActive, setSosActive] = useState(false);
+  const [progress, setProgress] = useState(0);
   const toast = useToast();
 
   useEffect(() => {
-    let interval;
-    if (sosStatus === 'holding') {
-      interval = setInterval(() => {
-        setHoldProgress(prev => {
-          if (prev >= 100) {
-            setSosStatus('active');
-            toast.show.error('SOS Signal Sent to all nearby units. Share location enabled.', 5000);
-            return 100;
-          }
-          return prev + 5;
-        });
-      }, 50);
-    } else {
-      setHoldProgress(0);
+    let timer;
+    if (sosActive && progress < 100) {
+      timer = setInterval(() => setProgress(p => p + 10), 200);
+    } else if (progress === 100) {
+      toast.show.error('EMERGENCY DISPATCHED. GPS coordinates 12.9716, 77.5946 sent to police and nearest hospital.', 6000);
     }
-    return () => clearInterval(interval);
-  }, [sosStatus, toast.show]);
-
-  const handleMouseDown = () => setSosStatus('holding');
-  const handleMouseUp = () => setSosStatus(prev => prev === 'active' ? 'active' : 'idle');
+    return () => clearInterval(timer);
+  }, [sosActive, progress]);
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-        <h1 style={{ color: '#ef4444', marginBottom: '16px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px' }}>
-          <AlertTriangle size={32} /> Emergency Response Center
-        </h1>
-        <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)' }}>
-          Press and hold the SOS button for 2 seconds to alert authorities.
-        </p>
+    <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+      <div className="card" style={{ textAlign: 'center', background: '#fee2e2', borderColor: '#fecaca', marginBottom: '40px' }}>
+        <h2 style={{ color: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
+          <AlertTriangle /> Critical Emergency Response
+        </h2>
+        <p style={{ color: '#991b1b', marginTop: '8px' }}>Press and hold the SOS button or use one-tap dialing below.</p>
+        
+        {/* Location Display */}
+        <div style={{ marginTop: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#b91c1c', fontSize: '0.85rem', fontWeight: '700' }}>
+          <MapPin size={16} /> 
+          CURRENT GPS: 12.9716° N, 77.5946° E (Central District)
+          <div className="live-indicator" style={{ background: '#dc2626' }} />
+        </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', alignItems: 'center' }}>
-        
-        {/* SOS Section */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div 
-            className="sos-button-wrapper"
-            onMouseDown={handleMouseDown}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
-            onTouchStart={handleMouseDown}
-            onTouchEnd={handleMouseUp}
+            onMouseDown={() => setSosActive(true)}
+            onMouseUp={() => !sosActive && setProgress(0)}
             style={{ 
-              position: 'relative', 
               width: '240px', 
               height: '240px', 
-              borderRadius: '50%',
+              borderRadius: '50%', 
+              background: '#ef4444', 
+              boxShadow: '0 0 40px rgba(239, 68, 68, 0.4)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              userSelect: 'none'
+              position: 'relative',
+              overflow: 'hidden'
             }}
           >
-            {/* Progress Ring */}
-            <svg width="240" height="240" style={{ position: 'absolute', transform: 'rotate(-90deg)' }}>
-              <circle cx="120" cy="120" r="110" stroke="#fee2e2" strokeWidth="12" fill="none" />
-              <circle 
-                cx="120" cy="120" r="110" 
-                stroke="#ef4444" 
-                strokeWidth="12" 
-                fill="none" 
-                strokeDasharray="691"
-                strokeDashoffset={691 - (691 * holdProgress) / 100}
-                style={{ transition: 'stroke-dashoffset 0.05s linear' }}
-              />
-            </svg>
+            {/* Progress Overlay */}
+            <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: `${progress}%`, background: '#dc2626', transition: 'height 0.2s' }} />
             
-            {/* Inner Button */}
-            <div style={{ 
-              width: '180px', 
-              height: '180px', 
-              borderRadius: '50%', 
-              background: sosStatus === 'active' ? '#10b981' : '#ef4444',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              boxShadow: '0 10px 30px rgba(239, 68, 68, 0.4)',
-              transform: sosStatus === 'holding' ? 'scale(0.95)' : 'scale(1)',
-              transition: 'all 0.2s',
-              zIndex: 10
-            }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: '800' }}>
-                {sosStatus === 'active' ? 'SENT' : 'SOS'}
-              </span>
-              <span style={{ fontSize: '0.9rem', marginTop: '4px', opacity: 0.9 }}>
-                {sosStatus === 'active' ? 'Help arriving' : 'Hold 2s'}
-              </span>
+            <div style={{ position: 'relative', textAlign: 'center', color: 'white' }}>
+              <div style={{ fontSize: '3rem', fontWeight: '900' }}>{progress === 100 ? 'SENT' : 'SOS'}</div>
+              <div style={{ fontSize: '0.8rem', opacity: 0.9 }}>{progress === 100 ? 'Help is coming' : 'Hold to Alert'}</div>
             </div>
           </div>
-          {sosStatus === 'active' && (
-            <button className="btn" style={{ marginTop: '24px', background: '#334155', color: 'white' }} onClick={() => setSosStatus('idle')}>
-              Cancel Alert
-            </button>
+          {progress === 100 && (
+             <button className="btn glass-button" style={{ marginTop: '24px' }} onClick={() => { setSosActive(false); setProgress(0); }}>
+               Reset Emergency Mode
+             </button>
           )}
         </div>
 
-        {/* Contacts Grid */}
         <div style={{ display: 'grid', gap: '16px' }}>
           {[
-            { title: 'Medical (Ambulance)', num: '108', icon: Ambulance, color: '#ef4444' },
-            { title: 'Police Control', num: '100', icon: Shield, color: '#3b82f6' },
-            { title: 'Fire Dept', num: '101', icon: Flame, color: '#f97316' },
-            { title: 'Disaster Helpline', num: '1077', icon: Phone, color: '#8b5cf6' }
-          ].map((c) => (
-            <div key={c.title} className="card" style={{ 
-              padding: '20px', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'space-between',
-              borderLeft: `4px solid ${c.color}`,
-              cursor: 'pointer'
-            }}
-            onClick={() => toast.show.info(`Calling ${c.title}...`)}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ background: `${c.color}15`, padding: '10px', borderRadius: '50%', color: c.color }}>
-                  <c.icon size={24} />
-                </div>
-                <div>
-                  <h4 style={{ margin: 0 }}>{c.title}</h4>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Tap to call</span>
-                </div>
+            { tag: 'Ambulance', num: '108', color: '#ef4444', icon: Ambulance },
+            { tag: 'Police', num: '100', color: '#3b82f6', icon: Shield },
+            { tag: 'Fire Force', num: '101', color: '#f59e0b', icon: Flame },
+            { tag: 'Women Help', num: '1091', color: '#ec4899', icon: Phone },
+          ].map(c => (
+            <div key={c.tag} className="card" style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderLeft: `6px solid ${c.color}` }}>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <div style={{ color: c.color }}><c.icon size={24} /></div>
+                <strong>{c.tag}</strong>
               </div>
-              <span style={{ fontSize: '1.5rem', fontWeight: '700', color: 'var(--text-main)' }}>{c.num}</span>
+              <a href={`tel:${c.num}`} style={{ fontSize: '1.25rem', fontWeight: '800' }}>{c.num}</a>
             </div>
           ))}
         </div>
-
       </div>
-
-      <style>{`
-        @media (max-width: 768px) {
-          div[style*="gridTemplateColumns: 1fr 1fr"] {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
     </div>
   );
 };
