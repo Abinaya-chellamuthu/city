@@ -3,33 +3,44 @@ import { Phone, Ambulance, Shield, Flame, AlertTriangle, MapPin, Send } from 'lu
 import { useToast } from '../context/ToastContext';
 
 const Emergency = () => {
+  const { role, disasterAlerts } = useAppContext();
   const [sosActive, setSosActive] = useState(false);
   const [progress, setProgress] = useState(0);
   const toast = useToast();
 
-  useEffect(() => {
-    let timer;
-    if (sosActive && progress < 100) {
-      timer = setInterval(() => setProgress(p => p + 10), 200);
-    } else if (progress === 100) {
-      toast.show.error('EMERGENCY DISPATCHED. GPS coordinates 12.9716, 77.5946 sent to police and nearest hospital.', 6000);
-    }
-    return () => clearInterval(timer);
-  }, [sosActive, progress]);
-
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <div className="card" style={{ textAlign: 'center', background: '#fee2e2', borderColor: '#fecaca', marginBottom: '40px' }}>
-        <h2 style={{ color: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-          <AlertTriangle /> Critical Emergency Response
+    <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+      {/* DISASTER ALERTS LAYER */}
+      <div style={{ marginBottom: '32px' }}>
+         <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+            <Activity size={20} color="#dc2626" /> Active Disaster Alerts
+         </h3>
+         <div style={{ display: 'grid', gap: '12px' }}>
+            {disasterAlerts.map(a => (
+              <div key={a.id} className="card" style={{ background: '#fef2f2', borderColor: '#fee2e2', borderLeftWidth: '6px' }}>
+                 <div className="flex-between">
+                    <div>
+                      <strong style={{ color: '#991b1b', fontSize: '1rem' }}>{a.type} Caution - Severity: {a.severity}</strong>
+                      <p style={{ color: '#b91c1c', marginTop: '4px', fontSize: '0.85rem' }}>{a.message}</p>
+                    </div>
+                    <span style={{ fontSize: '0.75rem', padding: '4px 12px', background: 'white', borderRadius: '4px', fontWeight: 'bold', color: '#dc2626' }}>LIVE ALERT</span>
+                 </div>
+              </div>
+            ))}
+         </div>
+      </div>
+
+      <div className="card" style={{ textAlign: 'center', background: 'white', borderColor: 'var(--border-color)', marginBottom: '40px', padding: '32px' }}>
+        <h2 style={{ color: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', fontSize: '2rem', fontWeight: '800' }}>
+          <Shield size={32} /> Emergency Hub
         </h2>
-        <p style={{ color: '#991b1b', marginTop: '8px' }}>Press and hold the SOS button or use one-tap dialing below.</p>
+        <p style={{ color: 'var(--text-secondary)', marginTop: '12px' }}>One-tap access for critical citizen safety and disaster response.</p>
         
         {/* Location Display */}
-        <div style={{ marginTop: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#b91c1c', fontSize: '0.85rem', fontWeight: '700' }}>
-          <MapPin size={16} /> 
-          CURRENT GPS: 12.9716° N, 77.5946° E (Central District)
-          <div className="live-indicator" style={{ background: '#dc2626' }} />
+        <div style={{ marginTop: '24px', padding: '12px', background: '#f1f5f9', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#1e293b', fontSize: '0.9rem', fontWeight: '700' }}>
+          <MapPin size={18} color="#ef4444" /> 
+          BROADCASTING LOCATION: 12.9716° N, 77.5946° E
+          <div className="live-indicator" />
         </div>
       </div>
 

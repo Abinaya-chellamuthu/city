@@ -1,12 +1,22 @@
-import React from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import { Outlet } from 'react-router-dom';
 import { ToastProvider } from '../context/ToastContext';
 import { AppProvider, useAppContext } from '../context/AppContext';
-import { Monitor, Languages, User as UserIcon, ShieldCheck } from 'lucide-react';
+import { Monitor, Languages, User as UserIcon, ShieldCheck, Zap } from 'lucide-react';
 
 const TopHeader = () => {
-  const { role, setRole, language, setLanguage, highContrast, setHighContrast } = useAppContext();
+  const { role, language, setLanguage, highContrast, setHighContrast } = useAppContext();
+
+  const getRoleLabel = () => {
+    switch(role) {
+      case 'super_admin': return { label: 'SUPER ADMIN • STRATEGIC COMMAND', color: '#1e293b', bg: '#e2e8f0' };
+      case 'admin': return { label: 'DISTRICT ADMIN • OPERATIONS', color: '#2563eb', bg: '#eff6ff' };
+      case 'ward_officer': return { label: 'WARD OFFICER • TACTICAL', color: '#059669', bg: '#ecfdf5' };
+      default: return { label: 'VERIFIED CITIZEN • CC-9901', color: '#64748b', bg: '#f1f5f9' };
+    }
+  };
+
+  const identity = getRoleLabel();
 
   return (
     <header style={{ 
@@ -21,21 +31,23 @@ const TopHeader = () => {
       top: 0,
       zIndex: 100
     }}>
-      <div style={{ display: 'flex', gap: '12px' }}>
-        <button 
-          className="btn glass-button" 
-          style={{ padding: '6px 12px', fontSize: '0.8rem', background: role === 'citizen' ? 'var(--primary-light)' : 'white' }}
-          onClick={() => setRole('citizen')}
-        >
-          <UserIcon size={14} /> Citizen View
-        </button>
-        <button 
-          className="btn glass-button" 
-          style={{ padding: '6px 12px', fontSize: '0.8rem', background: role === 'admin' ? 'var(--primary-light)' : 'white' }}
-          onClick={() => setRole('admin')}
-        >
-          <ShieldCheck size={14} /> Admin View
-        </button>
+      <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+         <div style={{ 
+           padding: '6px 16px', 
+           background: identity.bg, 
+           color: identity.color, 
+           borderRadius: '4px', 
+           fontSize: '0.75rem', 
+           fontWeight: '800',
+           letterSpacing: '0.5px'
+         }}>
+           {identity.label}
+         </div>
+         {role === 'super_admin' && (
+           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#ef4444', fontSize: '0.7rem', fontWeight: 'bold' }}>
+              <Zap size={14} fill="#ef4444" /> LIVE INTEL
+           </div>
+         )}
       </div>
 
       <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
@@ -48,7 +60,7 @@ const TopHeader = () => {
           </button>
         </div>
         <div style={{ padding: '4px 12px', background: '#f1f5f9', borderRadius: '20px', fontSize: '0.85rem', fontWeight: '600' }}>
-          {language === 'en' ? 'English' : 'HINDI'}
+          {language === 'en' ? 'EN' : 'HI'}
         </div>
       </div>
     </header>
@@ -56,13 +68,24 @@ const TopHeader = () => {
 };
 
 const LayoutContent = () => {
+  const location = useLocation();
+  const isLoginPage = location.pathname === '/login';
+
+  if (isLoginPage) {
+    return (
+      <main style={{ width: '100%', minHeight: '100vh', background: '#f8fafc' }}>
+        <Outlet />
+      </main>
+    );
+  }
+
   return (
     <div className="app-layout" style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
       <div style={{ flex: 1, marginLeft: '260px', display: 'flex', flexDirection: 'column' }}>
         <TopHeader />
         <main style={{ padding: '32px', background: 'var(--bg-color)', flex: 1 }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
             <Outlet />
           </div>
         </main>

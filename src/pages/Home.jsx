@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAppContext } from '../context/AppContext';
-import { FileText, CreditCard, Activity, Map, PieChart, Users, TrendingUp } from 'lucide-react';
+import { FileText, CreditCard, Activity, Map, PieChart, Users, TrendingUp, ShieldCheck, AlertTriangle } from 'lucide-react';
 
 const StatCard = ({ title, val, icon: Icon, color }) => (
   <div className="card" style={{ padding: '20px', borderLeft: `4px solid ${color}` }}>
@@ -17,58 +17,121 @@ const StatCard = ({ title, val, icon: Icon, color }) => (
 );
 
 const Home = () => {
-  const { role, complaints, events } = useAppContext();
+  const { role, complaints, events, disasterAlerts } = useAppContext();
 
+  // 1. SUPER ADMIN VIEW (Strategic)
+  if (role === 'super_admin') {
+    return (
+      <div style={{ paddingBottom: '40px' }}>
+        <h1 style={{ marginBottom: '8px' }}>City Intelligence Command 🏙️</h1>
+        <p style={{ marginBottom: '32px' }}>Strategic city-level overview for Super Administrator.</p>
+        
+        <div className="grid-auto-fit" style={{ marginBottom: '32px' }}>
+          <StatCard title="City Stability Index" val="94.2%" icon={ShieldCheck} color="#059669" />
+          <StatCard title="Smart Infrastructure" val="Live" icon={Activity} color="#2563eb" />
+          <StatCard title="Budget Efficiency" val="+12%" icon={TrendingUp} color="#059669" />
+          <StatCard title="Active Population" val="4.2M" icon={Users} color="#8b5cf6" />
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '32px' }}>
+          <div className="card">
+             <h3 style={{ marginBottom: '20px' }}>Inter-Ward Performance</h3>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {['Ward 1 (Green Park)', 'Ward 2 (Downtown)', 'Ward 3 (Industrial)', 'Ward 4 (Suburbs)'].map((w, i) => (
+                   <div key={w}>
+                      <div className="flex-between" style={{ fontSize: '0.9rem', marginBottom: '8px' }}>
+                         <strong>{w}</strong>
+                         <span>Resolution Rate: {92 - i*5}%</span>
+                      </div>
+                      <div style={{ width: '100%', height: '10px', background: '#f1f5f9', borderRadius: '5px' }}>
+                         <div style={{ width: `${92-i*5}%`, height: '100%', background: 'var(--primary)', borderRadius: '5px' }} />
+                      </div>
+                   </div>
+                ))}
+             </div>
+          </div>
+          <div className="card" style={{ background: '#fef2f2', borderColor: '#fee2e2' }}>
+             <h3 style={{ color: '#991b1b', marginBottom: '16px' }}>Critical Alerts</h3>
+             {disasterAlerts.map(a => (
+               <div key={a.id} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                  <AlertTriangle color="#dc2626" size={24} />
+                  <div>
+                    <strong style={{ color: '#991b1b' }}>{a.type} Caution</strong>
+                    <div style={{ fontSize: '0.85rem', color: '#b91c1c' }}>{a.message}</div>
+                  </div>
+               </div>
+             ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. ADMIN VIEW (Operational)
   if (role === 'admin') {
     return (
       <div style={{ paddingBottom: '40px' }}>
-        <h1 style={{ marginBottom: '24px' }}>City Authority Dashboard 🏛️</h1>
+        <h1 style={{ marginBottom: '8px' }}>Operational Dashboard 🏛️</h1>
+        <p style={{ marginBottom: '24px' }}>Managing city-wide services and department performance.</p>
         
         <div className="grid-auto-fit" style={{ marginBottom: '32px' }}>
           <StatCard title="Total Complaints" val={complaints.length} icon={FileText} color="#2563eb" />
-          <StatCard title="Pending Review" val={complaints.filter(c=>c.status==='Pending').length} icon={Activity} color="#f59e0b" />
-          <StatCard title="Active Services" val="12" icon={Users} color="#10b981" />
-          <StatCard title="Budget Used" val="64%" icon={TrendingUp} color="#ef4444" />
+          <StatCard title="Avg Resolution" val="4.2 Hrs" icon={Activity} color="#10b981" />
+          <StatCard title="Staff Active" val="84%" icon={Users} color="#8b5cf6" />
+          <StatCard title="Critical Pending" val={complaints.filter(c=>c.priority==='High' && c.status==='Pending').length} icon={AlertTriangle} color="#ef4444" />
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
-          {/* Mock Map 🌍 */}
           <div className="card">
-            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-              <Map size={18} color="var(--primary)" /> Issue Hotspots Map
-            </h3>
-            <div style={{ height: '300px', background: '#e2e8f0', borderRadius: '8px', position: 'relative', overflow: 'hidden' }}>
-              {/* Dummy Map Markers */}
-              <div style={{ position: 'absolute', top: '20%', left: '30%', width: '12px', height: '12px', background: '#ef4444', borderRadius: '50%', border: '2px solid white' }} title="Pothole" />
-              <div style={{ position: 'absolute', top: '40%', left: '70%', width: '12px', height: '12px', background: '#f59e0b', borderRadius: '50%', border: '2px solid white' }} title="Sanitation" />
-              <div style={{ position: 'absolute', top: '60%', left: '40%', width: '12px', height: '12px', background: '#ef4444', borderRadius: '50%', border: '2px solid white' }} title="Water Leak" />
-              <div style={{ width: '100%', height: '100%', background: 'linear-gradient(45deg, #cbd5e1 25%, #94a3b8 25%, #94a3b8 50%, #cbd5e1 50%, #cbd5e1 75%, #94a3b8 75%)', backgroundSize: '40px 40px', opacity: 0.1 }} />
-              <div style={{ position: 'absolute', bottom: '12px', right: '12px', background: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '0.7rem' }}>Live Map Data Feed</div>
+            <h3>Issue Hotspots Map</h3>
+            <div style={{ height: '300px', background: '#e2e8f0', borderRadius: '8px', position: 'relative', overflow: 'hidden', marginTop: '16px' }}>
+              <div style={{ position: 'absolute', top: '20%', left: '30%', width: '12px', height: '12px', background: '#ef4444', borderRadius: '50%', border: '2px solid white' }} />
+              <div style={{ position: 'absolute', top: '40%', left: '70%', width: '12px', height: '12px', background: '#f59e0b', borderRadius: '50%', border: '2px solid white' }} />
+              <div style={{ width: '100%', height: '100%', opacity: 0.1, background: 'repeating-linear-gradient(45deg, #000, #000 10px, #fff 10px, #fff 20px)' }} />
             </div>
           </div>
+          <div className="card">
+             <h3>Resource Allocation</h3>
+             <div style={{ marginTop: '24px', display: 'grid', gap: '20px' }}>
+                {['Infra', 'Sanitation', 'Public Welfare'].map((l, i) => (
+                  <div key={l}>
+                    <div className="flex-between" style={{ fontSize: '0.8rem' }}><span>{l}</span><span>{[40, 30, 30][i]}%</span></div>
+                    <div style={{ width: '100%', height: '8px', background: '#f1f5f9', borderRadius: '4px', marginTop: '4px' }}>
+                       <div style={{ width: `${[40, 30, 30][i]}%`, height: '100%', background: 'var(--primary)', borderRadius: '4px' }} />
+                    </div>
+                  </div>
+                ))}
+             </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-          {/* Analytics Chart 📊 */}
-          <div className="card">
-            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-              <PieChart size={18} color="#10b981" /> Resource Allocation
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '24px' }}>
-               {['Infrastructure', 'Sanitation', 'Public Welfare', 'Digital Services'].map((lab, i) => (
-                 <div key={lab}>
-                   <div className="flex-between" style={{ fontSize: '0.85rem' }}>
-                     <span>{lab}</span>
-                     <span>{[35, 25, 20, 20][i]}%</span>
+  // 3. WARD OFFICER VIEW (Tactical)
+  if (role === 'ward_officer') {
+    return (
+      <div>
+        <h1 style={{ marginBottom: '8px' }}>Ward Control Panel 🏘️</h1>
+        <p style={{ marginBottom: '32px' }}>Localized task management for Ward 4.</p>
+        <div className="grid-auto-fit" style={{ marginBottom: '32px' }}>
+           <StatCard title="Assigned Tickets" val={complaints.length} icon={FileText} color="#2563eb" />
+           <StatCard title="Resolved Today" val="3" icon={ShieldCheck} color="#059669" />
+           <StatCard title="Pending Field Visits" val="2" icon={Map} color="#f59e0b" />
+        </div>
+        <div className="card">
+           <h3>Daily Task List</h3>
+           <div style={{ display: 'grid', gap: '12px', marginTop: '16px' }}>
+              {complaints.filter(c => c.status !== 'Resolved').map(c => (
+                <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: '#f8fafc', borderRadius: '6px' }}>
+                   <div>
+                      <strong>{c.ticketId} - {c.category}</strong>
+                      <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{c.location}</div>
                    </div>
-                   <div style={{ width: '100%', height: '8px', background: '#f1f5f9', borderRadius: '4px', marginTop: '4px' }}>
-                     <div style={{ width: `${[35, 25, 20, 20][i]}%`, height: '100%', background: ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6'][i], borderRadius: '4px' }} />
-                   </div>
-                 </div>
-               ))}
-            </div>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '24px' }}>
-              * Data represents active budget distribution for the current fiscal quarter.
-            </p>
-          </div>
+                   <button className="btn btn-primary" style={{ padding: '4px 12px', fontSize: '0.8rem' }}>View Detail</button>
+                </div>
+              ))}
+           </div>
         </div>
       </div>
     );
