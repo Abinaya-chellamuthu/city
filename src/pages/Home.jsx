@@ -109,6 +109,21 @@ const Home = () => {
             ))}
           </div>
         </div>
+
+        {/* FEATURE 13: Reminders & Calendar */}
+        <div className="card">
+          <h3>Upcoming Reminders 📅</h3>
+          <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+             <div style={{ padding: '10px', background: '#fff7ed', borderLeft: '4px solid #f59e0b', borderRadius: '4px' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Electricity Bill Due</div>
+                <div style={{ fontSize: '0.75rem', color: '#9a3412' }}>Deadline: Feb 15 (3 days left)</div>
+             </div>
+             <div style={{ padding: '10px', background: '#eff6ff', borderLeft: '4px solid #3b82f6', borderRadius: '4px' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Town Hall Webinar</div>
+                <div style={{ fontSize: '0.75rem', color: '#1e40af' }}>Starts at 6:00 PM, Today</div>
+             </div>
+          </div>
+        </div>
       </div>
 
       <div className="card">
