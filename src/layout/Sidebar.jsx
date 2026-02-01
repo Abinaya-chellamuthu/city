@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, FileText, CreditCard, Ambulance, MessageSquare, Calendar, Briefcase, LogOut } from 'lucide-react';
+import { Home, FileText, CreditCard, Ambulance, MessageSquare, Calendar, Briefcase, LogOut, Map, Activity, Code } from 'lucide-react';
+import { useAppContext } from '../context/AppContext';
 
 const Sidebar = () => {
   const { role, setRole } = useAppContext();
@@ -20,6 +21,7 @@ const Sidebar = () => {
     { section: 'GOVERNANCE', items: [
       { name: 'Digital Twin', path: '/digital-twin', icon: <Map size={20} />, roles: ['admin', 'super_admin'] },
       { name: 'Sustainability', path: '/sustainability', icon: <Activity size={20} />, roles: ['citizen', 'admin', 'super_admin'] },
+      { name: 'Dev Portal', path: '/developer', icon: <Code size={20} />, roles: ['admin', 'super_admin'] },
     ]}
   ];
 

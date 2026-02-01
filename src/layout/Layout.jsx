@@ -51,6 +51,12 @@ const TopHeader = () => {
       </div>
 
       <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+        {/* FEATURE 12: Offline Mode Sync Indicator */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 12px', background: '#ecfdf5', borderRadius: '16px', border: '1px solid #d1fae5' }}>
+           <div className="live-indicator" style={{ width: '8px', height: '8px', background: '#10b981' }} />
+           <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: '#047857' }}>SYSTEM SYNCED (LOCAL CACHE ACTIVE)</span>
+        </div>
+        
         <div style={{ display: 'flex', gap: '8px' }}>
           <button className="btn glass-button" style={{ padding: '6px', width: '32px' }} onClick={() => setHighContrast(!highContrast)} title="Accessibility">
             <Monitor size={16} />

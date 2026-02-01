@@ -11,6 +11,7 @@ import Jobs from './pages/Jobs';
 import Login from './pages/Login';
 import Sustainability from './pages/Sustainability';
 import DigitalTwin from './pages/DigitalTwin';
+import DevPortal from './pages/DevPortal';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="jobs" element={<Jobs />} />
           <Route path="sustainability" element={<Sustainability />} />
           <Route path="digital-twin" element={<DigitalTwin />} />
+          <Route path="developer" element={<DevPortal />} />
         </Route>
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
